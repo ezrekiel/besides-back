@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Advertisements</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Job Advertisements</h1>
+        <div class="job-ad">
+            <h2>Frontend Developer</h2>
+            <p>Looking for a skilled frontend developer with experience in React and JavaScript.</p>
+            <button class="apply-btn" data-job-id="1">Apply</button>
+        </div>
+
+        <div class="job-ad">
+            <h2>Backend Developer</h2>
+            <p>We need a backend developer with strong knowledge of Node.js and MongoDB.</p>
+            <button class="apply-btn" data-job-id="2">Apply</button>
+        </div>
+
+        <div class="job-ad">
+            <h2>Full Stack Developer</h2>
+            <p>Hiring a full stack developer to work on both frontend and backend tasks.</p>
+            <button class="apply-btn" data-job-id="3">Apply</button>
+        </div>
+
+        <!-- Application Form (Hidden by Default) -->
+        <div id="apply-form-container" style="display: none;">
+            <h2>Apply for Job</h2>
+            <form id="apply-form">
+                <input type="hidden" id="job-id" name="jobId">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="phone">Phone:</label>
+                <input type="text" id="phone" name="phone" required>
+
+                <label for="motivation">Motivation Letter:</label>
+                <textarea id="motivation" name="motivation" rows="5" required></textarea>
+
+                <button type="submit">Submit Application</button>
+            </form>
+        </div>
+
+    </div>
+
+    <script src="scriptv.js"></script>
+</body>
+</html></html>
