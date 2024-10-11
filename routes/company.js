@@ -4,73 +4,102 @@ const db = require('../utils/database');
 const express = require('express');
 const router = express.Router();
 
-//Create Resource
+// Create Company
 router.post('/', validateToken, async (req, res) => {
-	const resourceName = sanitizeInput(req.body.resourceName);
+    const companyName = sanitizeInput(req.body.companyName);
+    const legalStatus = sanitizeInput(req.body.legalStatus);
+    const activitySector = sanitizeInput(req.body.activitySector);
 
-	if (!resourceName) return res.status(400).send({ message: 'Error : Missing information.' });
+    if (!companyName || !legalStatus || !activitySector) {
+        return res.status(400).send({ message: 'Error: Missing required information.' });
+    }
 
-	try {
-		const result = await db.query('INSERT INTO resource (resourceName) VALUES (?)', [resourceName]);
-		
-		if (result.affectedRows > 0) return res.status(200).send({ message: 'resource created successfully.'});
-		return res.status(500).send({ message: 'Error : Unable to create resource.' });
+    try {
+        const companyResult = await db.query('INSERT INTO companies (companyName, legalStatus, activitySector) VALUES (?, ?, ?)', 
+            [companyName, legalStatus, activitySector]);
 
-	} catch (err) {
-		res.status(500).send({ message: 'Error : Unable to create resource.', error: err.message });
-	}
+        if (!(companyResult.affectedRows > 0)) {
+            return res.status(500).send({ message: 'Error: Unable to create company.' });
+        }
+
+    } catch (err) {
+        res.status(500).send({ message: 'Error: ' + err.message });
+    }
+
+    return res.status(200).send( { 
+        message: 'Company created successfully.', 
+        company: {
+            companyId : companyResult.insertId.toString(), 
+            companyName : companyName,
+            legalStatus : legalStatus,
+            activitySector : activitySector
+        }
+    });
 });
 
-//Get All Resources
+// Get All Companies
 router.get('/', validateToken, async (req, res) => {
-	try {
-		const result = await db.query('SELECT * FROM resource');
-		return res.status(200).send(result);
+    try {
+        const result = await db.query('SELECT * FROM companies');
+        return res.status(200).send(result);
 
-	} catch (err) {
-		res.status(500).send({ message: 'Error : Unable to fetch resources.', error: err.message });
-	}
+    } catch (err) {
+        res.status(500).send({ message: 'Error: Unable to fetch companies.', error: err.message });
+    }
 });
 
-//Get Resource By ID
-router.get('/:resourceID', validateToken, async (req, res) => {
-	try {
-		const result = await db.query('SELECT * FROM resource WHERE resourceID = ?', [req.params.resourceID]);
+// Get Company By ID
+router.get('/:id', validateToken, async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM companies WHERE id = ?', [req.params.id]);
 
-		if (result.length > 0) return res.status(200).send(result[0]);
-		return res.status(404).send({ message: 'Error : resource not found.' });
+        if (result.length > 0) {
+            return res.status(200).send(result[0]);
+        }
+        return res.status(404).send({ message: 'Error: Company not found.' });
 
-	} catch (err) {
-		res.status(500).send({ message: 'Error : Unable to fetch the resource.', error: err.message });
-	}
+    } catch (err) {
+        res.status(500).send({ message: 'Error: Unable to fetch the company.', error: err.message });
+    }
 });
 
-//Edit Resource
-router.put('/:resourceID', validateToken, async (req, res) => {
-	const resourceName = sanitizeInput(req.body.resourceName);
+// Edit Company
+router.put('/:id', validateToken, async (req, res) => {
+    const companyName = sanitizeInput(req.body.companyName);
+    const legalStatus = sanitizeInput(req.body.legalStatus);
+    const activitySector = sanitizeInput(req.body.activitySector);
 
-	try {
-		const result = await db.query('UPDATE resource SET resourceName = ? WHERE resourceID = ?', [chatName, req.params.resourceID]);
+    if (!companyName || !legalStatus || !activitySector) {
+        return res.status(400).send({ message: 'Error: Missing required information.' });
+    }
 
-		if (result.affectedRows > 0) return res.status(200).send({ message: 'resource updated successfully.' });
-		return res.status(404).send({ message: 'Error : resource not found.' });
+    try {
+        const result = await db.query('UPDATE companies SET companyName = ?, legalStatus = ?, activitySector = ? WHERE id = ?', 
+            [companyName, legalStatus, activitySector, req.params.id]);
 
-	} catch (err) {
-		res.status(500).send({ message: 'Error : Unable to update resource.', error: err.message });
-	}
+        if (result.affectedRows > 0) {
+            return res.status(200).send({ message: 'Company updated successfully.' });
+        }
+        return res.status(404).send({ message: 'Error: Company not found.' });
+
+    } catch (err) {
+        res.status(500).send({ message: 'Error: Unable to update company.', error: err.message });
+    }
 });
 
-//Delete Resource
-router.delete('/:resourceID', validateToken, async (req, res) => {
-	try {
-		const result = await db.query('DELETE FROM resource WHERE resourceID = ?', [req.params.resourceID]);
+// Delete Company
+router.delete('/:id', validateToken, async (req, res) => {
+    try {
+        const result = await db.query('DELETE FROM companies WHERE id = ?', [req.params.id]);
 
-		if (result.affectedRows > 0) return res.status(200).send({ message: 'resource deleted successfully.' });
-		return res.status(404).send({ message: 'Error : resource not found.' });
+        if (result.affectedRows > 0) {
+            return res.status(200).send({ message: 'Company deleted successfully.' });
+        }
+        return res.status(404).send({ message: 'Error: Company not found.' });
 
-	} catch (err) {
-		res.status(500).send({ message: 'Error : Unable to delete resource.', error: err.message });
-	}
+    } catch (err) {
+        res.status(500).send({ message: 'Error: Unable to delete company.', error: err.message });
+    }
 });
 
 module.exports = router;

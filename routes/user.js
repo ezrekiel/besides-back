@@ -4,18 +4,20 @@ const db = require('../utils/database');
 const express = require('express');
 const router = express.Router();
 
-//Create user
+// Création d'utilisateur, normalement inutile car auth.js le fait mieux
+/*
 router.post('/', validateToken, async (req, res) => {
-	const firstName = sanitizeInput(req.body.userName);
-	const lastName = sanitizeInput(req.body.userName);
-	const birthday = sanitizeInput(req.body.userName);
-	const phoneNumber = sanitizeInput(req.body.userName);
-	const gender = sanitizeInput(req.body.userName);
+	const userName = sanitizeInput(req.body.userName);
+	const firstName = sanitizeInput(req.body.firstName);
+	const lastName = sanitizeInput(req.body.lastName);
+	const birthday = sanitizeInput(req.body.birthday);
+	const phoneNumber = sanitizeInput(req.body.phoneNumber);
+	const gender = sanitizeInput(req.body.gender);
 
 	if (!userName) return res.status(400).send({ message: 'Error : Missing information.' });
 
 	try {
-		const result = await db.query('INSERT INTO users (firstName, lastName, birthday, phoneNumber, gender) VALUES (?, ?, ?, ?, ?)', [userName]);
+		const result = await db.query('INSERT INTO users (userName, firstName, lastName, birthday, phoneNumber, gender) VALUES (?, ?, ?, ?, ?)', [userName, firstName, lastName, birthday, phoneNumber, gender]);
 		
 		if (result.affectedRows > 0) return res.status(200).send({ message: 'user created successfully.'});
 		return res.status(500).send({ message: 'Error : Unable to create user.' });
@@ -24,8 +26,9 @@ router.post('/', validateToken, async (req, res) => {
 		res.status(500).send({ message: 'Error : Unable to create user.', error: err.message });
 	}
 });
+*/
 
-//Get All Users
+// Récupérer tous les users
 router.get('/', validateToken, async (req, res) => {
 	try {
 		const result = await db.query('SELECT * FROM users');
@@ -36,10 +39,11 @@ router.get('/', validateToken, async (req, res) => {
 	}
 });
 
-//Get User By ID
+// Récupérer un user par son ID
 router.get('/:userID', validateToken, async (req, res) => {
 	try {
-		const result = await db.query('SELECT * FROM users WHERE userID = ?', [req.params.userID]);
+		const result = await db.query('SELECT * FROM users WHERE id = ?', [req.params.userID]);
+		console.log(result);
 
 		if (result.length > 0) return res.status(200).send(result[0]);
 		return res.status(404).send({ message: 'Error : user not found.' });
@@ -49,25 +53,36 @@ router.get('/:userID', validateToken, async (req, res) => {
 	}
 });
 
-//Edit User
-router.put('/:userID', validateToken, async (req, res) => {
-	const userName = sanitizeInput(req.body.userName);
+// Modifier un user
+router.put('/:id', validateToken, async (req, res) => {
+    const firstName = sanitizeInput(req.body.firstName);
+    const lastName = sanitizeInput(req.body.lastName);
+    const phoneNumber = sanitizeInput(req.body.phoneNumber);
+    const gender = sanitizeInput(req.body.gender);
+    const employer = sanitizeInput(req.body.employer);
 
-	try {
-		const result = await db.query('UPDATE users SET userName = ? WHERE userID = ?', [chatName, req.params.userID]);
+    if (!firstName || !lastName || !phoneNumber || gender === undefined || employer === undefined) {
+        return res.status(400).send({ message: 'Error: Missing required information.' });
+    }
 
-		if (result.affectedRows > 0) return res.status(200).send({ message: 'user updated successfully.' });
-		return res.status(404).send({ message: 'Error : user not found.' });
+    try {
+        const result = await db.query('UPDATE users SET firstName = ?, lastName = ?, phoneNumber = ?, gender = ?, employer = ? WHERE id = ?', 
+            [firstName, lastName, phoneNumber, gender, employer, req.params.id]);
 
-	} catch (err) {
-		res.status(500).send({ message: 'Error : Unable to update user.', error: err.message });
-	}
+        if (result.affectedRows > 0) {
+            return res.status(200).send({ message: 'User updated successfully.' });
+        }
+        return res.status(404).send({ message: 'Error: User not found.' });
+
+    } catch (err) {
+        res.status(500).send({ message: 'Error: Unable to update user.', error: err.message });
+    }
 });
 
-//Delete User
+// Suppression de user
 router.delete('/:userID', validateToken, async (req, res) => {
 	try {
-		const result = await db.query('DELETE FROM users WHERE userID = ?', [req.params.userID]);
+		const result = await db.query('DELETE FROM users WHERE id = ?', [req.params.userID]);
 
 		if (result.affectedRows > 0) return res.status(200).send({ message: 'user deleted successfully.' });
 		return res.status(404).send({ message: 'Error : user not found.' });

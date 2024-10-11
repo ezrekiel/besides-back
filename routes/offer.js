@@ -4,73 +4,98 @@ const db = require('../utils/database');
 const express = require('express');
 const router = express.Router();
 
-//Create Resource
+// Create a Job Ad
 router.post('/', validateToken, async (req, res) => {
-	const resourceName = sanitizeInput(req.body.resourceName);
+    const title = sanitizeInput(req.body.title);
+    const libelle = sanitizeInput(req.body.libelle);
+    const jobType = sanitizeInput(req.body.jobType);
+    const workingTime = sanitizeInput(req.body.workingTime);
+    const salary = sanitizeInput(req.body.salary);
+    const id_company = sanitizeInput(req.body.id_company);  // Assuming the company ID is provided
 
-	if (!resourceName) return res.status(400).send({ message: 'Error : Missing information.' });
+    if (!title || !libelle || !jobType || !workingTime || !salary || !id_company) {
+        return res.status(400).send({ message: 'Error: Missing information.' });
+    }
 
-	try {
-		const result = await db.query('INSERT INTO resource (resourceName) VALUES (?)', [resourceName]);
-		
-		if (result.affectedRows > 0) return res.status(200).send({ message: 'resource created successfully.'});
-		return res.status(500).send({ message: 'Error : Unable to create resource.' });
+    try {
+        const result = await db.query('INSERT INTO jobAds (title, libelle, jobType, workingTime, salary, postedAt, id_company) VALUES (?, ?, ?, ?, ?, NOW(), ?)', 
+        [title, libelle, jobType, workingTime, salary, id_company]);
 
-	} catch (err) {
-		res.status(500).send({ message: 'Error : Unable to create resource.', error: err.message });
-	}
+        if (result.affectedRows > 0) {
+            return res.status(200).send({ message: 'Job ad created successfully.' });
+        }
+        return res.status(500).send({ message: 'Error: Unable to create job ad.' });
+
+    } catch (err) {
+        res.status(500).send({ message: 'Error: Unable to create job ad.', error: err.message });
+    }
 });
 
-//Get All Resources
+// Get All Job Ads
 router.get('/', validateToken, async (req, res) => {
-	try {
-		const result = await db.query('SELECT * FROM resource');
-		return res.status(200).send(result);
+    try {
+        const result = await db.query('SELECT * FROM jobAds');
+        return res.status(200).send(result);
 
-	} catch (err) {
-		res.status(500).send({ message: 'Error : Unable to fetch resources.', error: err.message });
-	}
+    } catch (err) {
+        res.status(500).send({ message: 'Error: Unable to fetch job ads.', error: err.message });
+    }
 });
 
-//Get Resource By ID
-router.get('/:resourceID', validateToken, async (req, res) => {
-	try {
-		const result = await db.query('SELECT * FROM resource WHERE resourceID = ?', [req.params.resourceID]);
+// Get Job Ad by ID
+router.get('/:id', validateToken, async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM jobAds WHERE id = ?', [req.params.id]);
 
-		if (result.length > 0) return res.status(200).send(result[0]);
-		return res.status(404).send({ message: 'Error : resource not found.' });
+        if (result.length > 0) {
+            return res.status(200).send(result[0]);
+        }
+        return res.status(404).send({ message: 'Error: Job ad not found.' });
 
-	} catch (err) {
-		res.status(500).send({ message: 'Error : Unable to fetch the resource.', error: err.message });
-	}
+    } catch (err) {
+        res.status(500).send({ message: 'Error: Unable to fetch the job ad.', error: err.message });
+    }
 });
 
-//Edit Resource
-router.put('/:resourceID', validateToken, async (req, res) => {
-	const resourceName = sanitizeInput(req.body.resourceName);
+// Edit a Job Ad
+router.put('/:id', validateToken, async (req, res) => {
+    const title = sanitizeInput(req.body.title);
+    const libelle = sanitizeInput(req.body.libelle);
+    const jobType = sanitizeInput(req.body.jobType);
+    const workingTime = sanitizeInput(req.body.workingTime);
+    const salary = sanitizeInput(req.body.salary);
 
-	try {
-		const result = await db.query('UPDATE resource SET resourceName = ? WHERE resourceID = ?', [chatName, req.params.resourceID]);
+    if (!title || !libelle || !jobType || !workingTime || !salary) {
+        return res.status(400).send({ message: 'Error: Missing information.' });
+    }
 
-		if (result.affectedRows > 0) return res.status(200).send({ message: 'resource updated successfully.' });
-		return res.status(404).send({ message: 'Error : resource not found.' });
+    try {
+        const result = await db.query('UPDATE jobAds SET title = ?, libelle = ?, jobType = ?, workingTime = ?, salary = ? WHERE id = ?', 
+        [title, libelle, jobType, workingTime, salary, req.params.id]);
 
-	} catch (err) {
-		res.status(500).send({ message: 'Error : Unable to update resource.', error: err.message });
-	}
+        if (result.affectedRows > 0) {
+            return res.status(200).send({ message: 'Job ad updated successfully.' });
+        }
+        return res.status(404).send({ message: 'Error: Job ad not found.' });
+
+    } catch (err) {
+        res.status(500).send({ message: 'Error: Unable to update job ad.', error: err.message });
+    }
 });
 
-//Delete Resource
-router.delete('/:resourceID', validateToken, async (req, res) => {
-	try {
-		const result = await db.query('DELETE FROM resource WHERE resourceID = ?', [req.params.resourceID]);
+// Delete a Job Ad
+router.delete('/:id', validateToken, async (req, res) => {
+    try {
+        const result = await db.query('DELETE FROM jobAds WHERE id = ?', [req.params.id]);
 
-		if (result.affectedRows > 0) return res.status(200).send({ message: 'resource deleted successfully.' });
-		return res.status(404).send({ message: 'Error : resource not found.' });
+        if (result.affectedRows > 0) {
+            return res.status(200).send({ message: 'Job ad deleted successfully.' });
+        }
+        return res.status(404).send({ message: 'Error: Job ad not found.' });
 
-	} catch (err) {
-		res.status(500).send({ message: 'Error : Unable to delete resource.', error: err.message });
-	}
+    } catch (err) {
+        res.status(500).send({ message: 'Error: Unable to delete job ad.', error: err.message });
+    }
 });
 
 module.exports = router;

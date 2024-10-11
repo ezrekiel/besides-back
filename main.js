@@ -1,5 +1,9 @@
 // ROUTES
 const resourceRouter = require('./routes/resource');
+
+const userRouter = require('./routes/user');
+const companyRouter = require('./routes/company');
+const offerRouter = require('./routes/offer');
 const authRouter = require('./routes/auth');
 
 const bodyParser = require('body-parser');
@@ -18,8 +22,11 @@ app.use((req, res, next) => {
 app.use(cors());
 
 // Routes
-app.use('/resource', resourceRouter);
+// app.use('/resource', resourceRouter); route exemple
 app.use('/auth', authRouter);
+app.use('/user', userRouter);
+app.use('/offer', offerRouter);
+app.use('/company', companyRouter);
 
 app.listen(port, () => {
 	console.log(`Server running on http://localhost:${port}`);
