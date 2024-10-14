@@ -21,6 +21,10 @@ app.use((req, res, next) => {
 });
 app.use(cors());
 
+app.post("/post", (req, res)=> {
+    res.json({ message:"voici les données"});
+});
+
 // Routes
 // app.use('/resource', resourceRouter); route exemple
 app.use('/auth', authRouter);

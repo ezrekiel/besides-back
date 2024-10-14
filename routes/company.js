@@ -22,19 +22,18 @@ router.post('/', validateToken, async (req, res) => {
             return res.status(500).send({ message: 'Error: Unable to create company.' });
         }
 
+        return res.status(200).send( { 
+            message: 'Company created successfully.', 
+            company: {
+                companyId : companyResult.insertId.toString(),
+                companyName : companyName,
+                legalStatus : legalStatus,
+                activitySector : activitySector
+            }
+        });
     } catch (err) {
-        res.status(500).send({ message: 'Error: ' + err.message });
+        return res.status(500).send({ message: 'Error: ' + err.message });
     }
-
-    return res.status(200).send( { 
-        message: 'Company created successfully.', 
-        company: {
-            companyId : companyResult.insertId.toString(), 
-            companyName : companyName,
-            legalStatus : legalStatus,
-            activitySector : activitySector
-        }
-    });
 });
 
 // Get All Companies

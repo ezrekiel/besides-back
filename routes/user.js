@@ -58,10 +58,15 @@ router.put('/:id', validateToken, async (req, res) => {
     const firstName = sanitizeInput(req.body.firstName);
     const lastName = sanitizeInput(req.body.lastName);
     const phoneNumber = sanitizeInput(req.body.phoneNumber);
-    const gender = sanitizeInput(req.body.gender);
     const employer = sanitizeInput(req.body.employer);
+    const username = sanitizeInput(req.body.username);
+    const password = sanitizeInput(req.body.password);
+    const country = sanitizeInput(req.body.country);
+    const city = sanitizeInput(req.body.city);
+    const adress = sanitizeInput(req.body.adress);
+    const zipCode = sanitizeInput(req.body.zipCode);
 
-    if (!firstName || !lastName || !phoneNumber || gender === undefined || employer === undefined) {
+    if (!firstName || !lastName || !phoneNumber || !employer || !username || !password || !country || !city || !adress || !zipCode) {
         return res.status(400).send({ message: 'Error: Missing required information.' });
     }
 

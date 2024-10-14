@@ -2,39 +2,29 @@ CREATE DATABASE Besides;
 
 USE Besides;
 
-CREATE TABLE adresses (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    adress VARCHAR(255),
-    zipCode VARCHAR(255),
-    country VARCHAR(50),
-    city VARCHAR(50),
-    phoneNumber VARCHAR(20)
-);
-
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    id_adress INT,
-    username VARCHAR(255) UNIQUE NOT NULL,
+    id_company INT,
+    username VARCHAR(255) UNIQUE NOT NULL, -- l'adresse email
     pass VARCHAR(255) NOT NULL,
     firstName VARCHAR(60) NOT NULL,
     lastName VARCHAR(50) NOT NULL,
-    isAdmin BOOLEAN,
-    birthday DATE,
+    isAdmin BOOLEAN DEFAULT 0 NOT NULL,
+    birthday DATE NOT NULL,
     phoneNumber VARCHAR(20),
-    gender BOOLEAN,
-    FOREIGN KEY (id_adress) REFERENCES adresses(id)
+    gender BOOLEAN NOT NULL,
+    employer BOOLEAN DEFAULT 0,
+    adress VARCHAR(255) NOT NULL,
+    zipCode VARCHAR(255),
+    country VARCHAR(50),
+    city VARCHAR(50)
 );
 
 CREATE TABLE companies (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    id_adress INT,
-    username VARCHAR(255) UNIQUE NOT NULL,
-    pass VARCHAR(255) NOT NULL,
     companyName VARCHAR(50),
     legalStatus VARCHAR(30),
-    creationDate DATE,
-    activitySector VARCHAR(50),
-    FOREIGN KEY (id_adress) REFERENCES adresses(id)
+    activitySector VARCHAR(50)
 );
 
 CREATE TABLE jobAds (
@@ -43,7 +33,7 @@ CREATE TABLE jobAds (
     reference VARCHAR(50),
     title VARCHAR(255) NOT NULL,
     libelle TEXT,
-    postedAt DATETIME,
+    postedAt DATETIME DEFAULT NOW(),
     jobType VARCHAR(30),
     workingTime VARCHAR(50),
     salary VARCHAR(30),
@@ -56,7 +46,7 @@ CREATE TABLE jobApplications (
     id_applicant INT NOT NULL,
     motivationLetter TEXT,
     statut VARCHAR(15) DEFAULT 'Submitted',
-    appliedAt DATETIME,
+    appliedAt DATETIME DEFAULT NOW(),
     FOREIGN KEY (id_jobAd) REFERENCES jobAds(id),
     FOREIGN KEY (id_applicant) REFERENCES users(id)
 );
