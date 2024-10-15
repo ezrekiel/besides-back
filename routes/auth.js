@@ -40,7 +40,8 @@ router.post('/signup', async (req, res) => {
 		const country = sanitizeInput(req.body.country);
 		const city = sanitizeInput(req.body.city);
 		const adress = sanitizeInput(req.body.adress);
-		const zipCode = sanitizeInput(req.body.zipCode);*/
+		const zipCode = sanitizeInput(req.body.zipCode);
+		*/
 
 		// || !birthday || !gender || !employer || !country || !city || !adress || !zipCode
 		if (!firstName || !lastName || !username || !password || !phoneNumber ) return res.status(400).send({ message: 'Error : Missing credentials.' });
