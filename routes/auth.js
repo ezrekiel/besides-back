@@ -42,13 +42,6 @@ router.post('/signup', async (req, res) => {
 		const adress = sanitizeInput(req.body.adress);
 		const zipCode = sanitizeInput(req.body.zipCode);*/
 
-		// Du coup faut bien que tu wrap tout dans des guillemets sinon ça pete
-		// On peut faire un test pour voir ce que ça chope
-		// Ah je vois le soucis
-		// En gros 0 == false en JS (oui c'est un langage de con)
-		// Par contre pas de soucis pour le typage, j'ai checké la BDD et tout est bien typé
-		// Faudra juste que tout soit wrap dans des "" côté front & postman
-
 		// || !birthday || !gender || !employer || !country || !city || !adress || !zipCode
 		if (!firstName || !lastName || !username || !password || !phoneNumber ) return res.status(400).send({ message: 'Error : Missing credentials.' });
 		if(!isUsernameValid(username)) return res.status(400).send({ message: 'Error : Invalid username.' });
@@ -61,37 +54,8 @@ router.post('/signup', async (req, res) => {
 		//, birthday, gender, employer, country, city, adress, zipCode
 
 		if (!(signupQuery.affectedRows > 0)) return res.status(500).send({ message: 'Error : Unable to create User.' });
-
-
-		// Ici, je te conseille VIVEMENT d'ajouter les détails de l'utilisateur que tu viens de créer, donc tous les champs d'avant
-		// Ca peut se faire de pleins de façons différentes mais la strat la plus économe en ressources et en appelle BDD
-		// C'est la technique full roumain
-		// Observe
-		return res.status(200).send(
-			{ 
-				message: 'User created successfully.', 
-				user: {
-					userId : signupQuery.insertId.toString(), 
-					userlogin : username,
-					firstname : firstName,
-					lastname : lastName,
-					birthdaydate : birthday,
-					phonenumber : phoneNumber,
-					gender : gender,
-					employer : employer,
-					country : country,
-					city : city,
-					adress : adress,
-					zipcode : zipCode
-					//
-					// Ect, ect
-					// En soit ça fonctionne parce qu'on a les données et qu'on les a nettoyées avec le SanitizeInput
-					// Mais en vrai c'est pas non plus zinzin safety wise
-					// Mais en soit c'est des données qu'on insère dans la bdd donc bon....
-					// Sinon l'autre strat c'est d'insérer le nouvel utilisateur, PUIS faire une requête pour choper ses infos
-					// Pour ensuite renvoyer la data au front
-				} 
-			});
+		const userDetails = await getUserDetails(username);
+		return res.status(200).send({ message: 'User created successfully.', user: userDetails});
 	} catch(error) {
 		return res.status(500).send({ message: 'Error : ' + error });
 	}
