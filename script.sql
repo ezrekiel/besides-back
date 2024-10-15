@@ -1,6 +1,7 @@
-CREATE DATABASE Besides;
+DROP DATABASE IF EXISTS besides;
+CREATE DATABASE besides;
 
-USE Besides;
+USE besides;
 
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
