@@ -31,14 +31,16 @@ router.post('/signup', async (req, res) => {
 		const lastName = sanitizeInput(req.body.lastName);
 		const username = sanitizeInput(req.body.username);
 		const password = sanitizeInput(req.body.password);
-		const birthday = sanitizeInput(req.body.birthday);
 		const phoneNumber = sanitizeInput(req.body.phoneNumber);
+
+		/*
 		const gender = sanitizeInput(req.body.gender);
+		const birthday = sanitizeInput(req.body.birthday);
 		const employer = sanitizeInput(req.body.employer);
 		const country = sanitizeInput(req.body.country);
 		const city = sanitizeInput(req.body.city);
 		const adress = sanitizeInput(req.body.adress);
-		const zipCode = sanitizeInput(req.body.zipCode);
+		const zipCode = sanitizeInput(req.body.zipCode);*/
 
 		// Du coup faut bien que tu wrap tout dans des guillemets sinon ça pete
 		// On peut faire un test pour voir ce que ça chope
@@ -47,14 +49,16 @@ router.post('/signup', async (req, res) => {
 		// Par contre pas de soucis pour le typage, j'ai checké la BDD et tout est bien typé
 		// Faudra juste que tout soit wrap dans des "" côté front & postman
 
-		if (!firstName || !lastName || !username || !password || !birthday || !phoneNumber || !gender || !employer || !country || !city || !adress || !zipCode) return res.status(400).send({ message: 'Error : Missing credentials.' });
+		// || !birthday || !gender || !employer || !country || !city || !adress || !zipCode
+		if (!firstName || !lastName || !username || !password || !phoneNumber ) return res.status(400).send({ message: 'Error : Missing credentials.' });
 		if(!isUsernameValid(username)) return res.status(400).send({ message: 'Error : Invalid username.' });
 		
 		const hashedPassword = await bcrypt.hash(password, 10);
 
-		const signupQuery = await db.query('INSERT INTO users (username, pass, firstName, lastName, birthday, phoneNumber, gender, employer, country, city, adress, zipCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', 
-			[username, hashedPassword, firstName, lastName, birthday, phoneNumber, gender, employer, country, city, adress, zipCode]
+		const signupQuery = await db.query('INSERT INTO users (username, pass, firstName, lastName, phoneNumber) VALUES (?, ?, ?, ?, ?);', 
+			[username, hashedPassword, firstName, lastName, phoneNumber]
 		);
+		//, birthday, gender, employer, country, city, adress, zipCode
 
 		if (!(signupQuery.affectedRows > 0)) return res.status(500).send({ message: 'Error : Unable to create User.' });
 
