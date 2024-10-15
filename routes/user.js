@@ -69,8 +69,8 @@ router.put('/:id', validateToken, async (req, res) => {
     try {
 		const hashedPassword = await bcrypt.hash(password, 10);
 
-        const result = await db.query('UPDATE users SET lastName = ?, phoneNumber = ?, employer = ?,  username = ?,  password = ?,  country = ?,  city = ?,  adress = ?,  zipCode = ? WHERE id = ?', 
-            [firstName, lastName, phoneNumber, employer, username, hashedPassword, country, city, adress, zipCode, req.params.id]);
+        const result = await db.query('UPDATE users SET lastName = ?, phoneNumber = ?, employer = ?,  username = ?,  pass = ?,  country = ?,  city = ?,  adress = ?,  zipCode = ? WHERE id = ?', 
+            [lastName, phoneNumber, employer, username, hashedPassword, country, city, adress, zipCode, req.params.id]);
 
         if (result.affectedRows > 0) {
             return res.status(200).send({ message: 'User updated successfully.' });
