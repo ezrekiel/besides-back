@@ -16,7 +16,7 @@ router.post('/signin', async (req, res) => {
 		if (!bcryptResult) return res.status(401).send({ message: 'Invalid credentials!' });
 
 		const token = generateToken({ username });
-		const userDetails = getUserDetails(username);
+		const userDetails = await getUserDetails(username);
 		const timeZoneOffset = new Date().getTimezoneOffset() * 60000;
 		const expiryDate = new Date((Date.now() - timeZoneOffset) + 3600000).toISOString();
 		return res.status(200).send({ message: 'Login successful!', token: token, user: userDetails, expiryDate: expiryDate });
@@ -96,7 +96,6 @@ router.post('/signup', async (req, res) => {
 async function getUserDetails(username) {
 	const userDetailsQuery = await db.query('SELECT * FROM users WHERE username = ?', [username]);
 	if (!(userDetailsQuery.length > 0)) return {};
-
 	return userDetailsQuery[0];
 }
 
