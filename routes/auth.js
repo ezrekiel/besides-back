@@ -94,7 +94,7 @@ router.post('/signup', async (req, res) => {
 });
 
 async function getUserDetails(username) {
-	const userDetailsQuery = await db.query('SELECT * FROM users WHERE username = ?', [username]);
+	const userDetailsQuery = await db.query('SELECT users.id AS userID, companyID, username, firstname, lastname FROM users WHERE username = ?', [username]);
 	if (!(userDetailsQuery.length > 0)) return {};
 	return userDetailsQuery[0];
 }
