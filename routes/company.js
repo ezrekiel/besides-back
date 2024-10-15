@@ -15,17 +15,15 @@ router.post('/', validateToken, async (req, res) => {
     }
 
     try {
-        const companyResult = await db.query('INSERT INTO companies (companyName, legalStatus, activitySector) VALUES (?, ?, ?)', 
+        const companyQuery = await db.query('INSERT INTO companies (companyName, legalStatus, activitySector) VALUES (?, ?, ?)', 
             [companyName, legalStatus, activitySector]);
 
-        if (!(companyResult.affectedRows > 0)) {
-            return res.status(500).send({ message: 'Error: Unable to create company.' });
-        }
+        if (!(companyQuery.affectedRows > 0)) return res.status(500).send({ message: 'Error: Unable to create company.' });
 
         return res.status(200).send( { 
             message: 'Company created successfully.', 
             company: {
-                companyId : companyResult.insertId.toString(),
+                companyId : companyQuery.insertId.toString(),
                 companyName : companyName,
                 legalStatus : legalStatus,
                 activitySector : activitySector
@@ -69,12 +67,20 @@ router.put('/:id', validateToken, async (req, res) => {
     const activitySector = sanitizeInput(req.body.activitySector);
 
     try {
-        const result = await db.query('UPDATE companies SET companyName = ?, legalStatus = ?, activitySector = ? WHERE id = ?', 
+        const companyQuery = await db.query('UPDATE companies SET companyName = ?, legalStatus = ?, activitySector = ? WHERE id = ?', 
             [companyName, legalStatus, activitySector, req.params.id]);
 
-        if (result.affectedRows > 0) {
-            return res.status(200).send({ message: 'Company updated successfully.' });
-        }
+            if (companyQuery.affectedRows > 0) {
+                return res.status(200).send({
+                    message: 'Company updated successfully.',
+                    company: {
+                        companyId : req.params.id,
+                        companyName : companyName,
+                        legalStatus : legalStatus,
+                        activitySector : activitySector
+                    }
+                });
+            }
         return res.status(404).send({ message: 'Error: Company not found.' });
 
     } catch (err) {

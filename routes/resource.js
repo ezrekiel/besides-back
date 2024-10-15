@@ -11,9 +11,9 @@ router.post('/', validateToken, async (req, res) => {
 	if (!resourceName) return res.status(400).send({ message: 'Error : Missing information.' });
 
 	try {
-		const result = await db.query('INSERT INTO resource (resourceName) VALUES (?)', [resourceName]);
+		const resourceQuery = await db.query('INSERT INTO resource (resourceName) VALUES (?)', [resourceName]);
 		
-		if (result.affectedRows > 0) return res.status(200).send({ message: 'resource created successfully.'});
+		if (resourceQuery.affectedRows > 0) return res.status(200).send({ message: 'resource created successfully.'});
 		return res.status(500).send({ message: 'Error : Unable to create resource.' });
 
 	} catch (err) {
@@ -24,8 +24,8 @@ router.post('/', validateToken, async (req, res) => {
 //Get All Resources
 router.get('/', validateToken, async (req, res) => {
 	try {
-		const result = await db.query('SELECT * FROM resource');
-		return res.status(200).send(result);
+		const resourceQuery = await db.query('SELECT * FROM resource');
+		return res.status(200).send(resourceQuery);
 
 	} catch (err) {
 		res.status(500).send({ message: 'Error : Unable to fetch resources.', error: err.message });
@@ -35,9 +35,9 @@ router.get('/', validateToken, async (req, res) => {
 //Get Resource By ID
 router.get('/:resourceID', validateToken, async (req, res) => {
 	try {
-		const result = await db.query('SELECT * FROM resource WHERE resourceID = ?', [req.params.resourceID]);
+		const resourceQuery = await db.query('SELECT * FROM resource WHERE resourceID = ?', [req.params.resourceID]);
 
-		if (result.length > 0) return res.status(200).send(result[0]);
+		if (resourceQuery.length > 0) return res.status(200).send(resourceQuery[0]);
 		return res.status(404).send({ message: 'Error : resource not found.' });
 
 	} catch (err) {
@@ -50,9 +50,9 @@ router.put('/:resourceID', validateToken, async (req, res) => {
 	const resourceName = sanitizeInput(req.body.resourceName);
 
 	try {
-		const result = await db.query('UPDATE resource SET resourceName = ? WHERE resourceID = ?', [chatName, req.params.resourceID]);
+		const resourceQuery = await db.query('UPDATE resource SET resourceName = ? WHERE resourceID = ?', [chatName, req.params.resourceID]);
 
-		if (result.affectedRows > 0) return res.status(200).send({ message: 'resource updated successfully.' });
+		if (resourceQuery.affectedRows > 0) return res.status(200).send({ message: 'resource updated successfully.' });
 		return res.status(404).send({ message: 'Error : resource not found.' });
 
 	} catch (err) {
@@ -63,9 +63,9 @@ router.put('/:resourceID', validateToken, async (req, res) => {
 //Delete Resource
 router.delete('/:resourceID', validateToken, async (req, res) => {
 	try {
-		const result = await db.query('DELETE FROM resource WHERE resourceID = ?', [req.params.resourceID]);
+		const resourceQuery = await db.query('DELETE FROM resource WHERE resourceID = ?', [req.params.resourceID]);
 
-		if (result.affectedRows > 0) return res.status(200).send({ message: 'resource deleted successfully.' });
+		if (resourceQuery.affectedRows > 0) return res.status(200).send({ message: 'resource deleted successfully.' });
 		return res.status(404).send({ message: 'Error : resource not found.' });
 
 	} catch (err) {

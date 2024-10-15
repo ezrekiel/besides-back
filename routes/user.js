@@ -18,9 +18,9 @@ router.post('/', validateToken, async (req, res) => {
 	if (!userName) return res.status(400).send({ message: 'Error : Missing information.' });
 
 	try {
-		const result = await db.query('INSERT INTO users (userName, firstName, lastName, birthday, phoneNumber, gender) VALUES (?, ?, ?, ?, ?)', [userName, firstName, lastName, birthday, phoneNumber, gender]);
+		const userQuery = await db.query('INSERT INTO users (userName, firstName, lastName, birthday, phoneNumber, gender) VALUES (?, ?, ?, ?, ?)', [userName, firstName, lastName, birthday, phoneNumber, gender]);
 		
-		if (result.affectedRows > 0) return res.status(200).send({ message: 'user created successfully.'});
+		if (userQuery.affectedRows > 0) return res.status(200).send({ message: 'user created successfully.'});
 		return res.status(500).send({ message: 'Error : Unable to create user.' });
 
 	} catch (err) {
@@ -32,8 +32,8 @@ router.post('/', validateToken, async (req, res) => {
 // Récupérer tous les users
 router.get('/', validateToken, async (req, res) => {
 	try {
-		const result = await db.query('SELECT * FROM users');
-		return res.status(200).send(result);
+		const userQuery = await db.query('SELECT * FROM users');
+		return res.status(200).send(userQuery);
 
 	} catch (err) {
 		return res.status(500).send({ message: 'Error : Unable to fetch users.', error: err.message });
@@ -43,10 +43,10 @@ router.get('/', validateToken, async (req, res) => {
 // Récupérer un user par son ID
 router.get('/:userID', validateToken, async (req, res) => {
 	try {
-		const result = await db.query('SELECT * FROM users WHERE id = ?', [req.params.userID]);
-		console.log(result);
+		const userQuery = await db.query('SELECT * FROM users WHERE id = ?', [req.params.userID]);
+		console.log(userQuery);
 
-		if (result.length > 0) return res.status(200).send(result[0]);
+		if (userQuery.length > 0) return res.status(200).send(userQuery[0]);
 		return res.status(404).send({ message: 'Error : user not found.' });
 
 	} catch (err) {
@@ -69,10 +69,10 @@ router.put('/:id', validateToken, async (req, res) => {
     try {
 		const hashedPassword = await bcrypt.hash(password, 10);
 
-        const result = await db.query('UPDATE users SET lastName = ?, phoneNumber = ?, employer = ?,  username = ?,  pass = ?,  country = ?,  city = ?,  adress = ?,  zipCode = ? WHERE id = ?', 
+        const userQuery = await db.query('UPDATE users SET lastName = ?, phoneNumber = ?, employer = ?,  username = ?,  pass = ?,  country = ?,  city = ?,  adress = ?,  zipCode = ? WHERE id = ?', 
             [lastName, phoneNumber, employer, username, hashedPassword, country, city, adress, zipCode, req.params.id]);
 
-        if (result.affectedRows > 0) {
+        if (userQuery.affectedRows > 0) {
             return res.status(200).send({ message: 'User updated successfully.' });
         }
         return res.status(404).send({ message: 'Error: User not found.' });
@@ -85,9 +85,9 @@ router.put('/:id', validateToken, async (req, res) => {
 // Suppression de user
 router.delete('/:userID', validateToken, async (req, res) => {
 	try {
-		const result = await db.query('DELETE FROM users WHERE id = ?', [req.params.userID]);
+		const userQuery = await db.query('DELETE FROM users WHERE id = ?', [req.params.userID]);
 
-		if (result.affectedRows > 0) return res.status(200).send({ message: 'user deleted successfully.' });
+		if (userQuery.affectedRows > 0) return res.status(200).send({ message: 'user deleted successfully.' });
 		return res.status(404).send({ message: 'Error : user not found.' });
 
 	} catch (err) {

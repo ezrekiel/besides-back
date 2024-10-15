@@ -1,4 +1,5 @@
 DROP DATABASE IF EXISTS besides;
+
 CREATE DATABASE besides;
 
 USE besides;
@@ -29,7 +30,7 @@ CREATE TABLE users (
     FOREIGN KEY (companyID) REFERENCES companies(id)
 );
 
-CREATE TABLE jobAds (
+CREATE TABLE offers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     companyID INT NOT NULL,
     title VARCHAR(255) NOT NULL,
@@ -37,17 +38,22 @@ CREATE TABLE jobAds (
     postedAt DATETIME DEFAULT NOW(),
     jobType VARCHAR(30),
     workingTime VARCHAR(50),
+    contractType VARCHAR(50),
     salary VARCHAR(30),
+    adress VARCHAR(255) NOT NULL,
+    zipCode VARCHAR(255),
+    country VARCHAR(50),
+    city VARCHAR(50),
     FOREIGN KEY (companyID) REFERENCES companies(id)
 );
 
-CREATE TABLE jobApplications (
+CREATE TABLE offerApplications (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    jobAdID INT NOT NULL,
+    offersID INT NOT NULL,
     applicantID INT NOT NULL,
     motivationLetter TEXT,
     statut VARCHAR(15) DEFAULT 'Submitted',
     appliedAt DATETIME DEFAULT NOW(),
-    FOREIGN KEY (jobAdID) REFERENCES jobAds(id),
+    FOREIGN KEY (offersID) REFERENCES offers(id),
     FOREIGN KEY (applicantID) REFERENCES users(id)
 );

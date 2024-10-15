@@ -10,58 +10,64 @@ router.post('/', validateToken, async (req, res) => {
     const libelle = sanitizeInput(req.body.libelle);
     const jobType = sanitizeInput(req.body.jobType);
     const workingTime = sanitizeInput(req.body.workingTime);
+    const contractType = sanitizeInput(req.body.contractType);
     const salary = sanitizeInput(req.body.salary);
+    const country = sanitizeInput(req.body.country);
+    const city = sanitizeInput(req.body.city);
+    const adress = sanitizeInput(req.body.adress);
+    const zipCode = sanitizeInput(req.body.zipCode);
     const companyID = sanitizeInput(req.body.companyID);
 
-    if (!title || !libelle || !jobType || !workingTime || !salary || !companyID) {
+    if (!title || !libelle || !jobType || !workingTime || !contractType || !salary || !country || !city || !adress || !zipCode || !companyID) {
         return res.status(400).send({ message: 'Error: Missing information.' });
     }
 
     try {
-        const jobQuery = await db.query('INSERT INTO jobAds (title, libelle, jobType, workingTime, salary, postedAt, companyID) VALUES (?, ?, ?, ?, ?, NOW(), ?)', 
-        [title, libelle, jobType, workingTime, salary, companyID]);
+        const jobQuery = await db.query('INSERT INTO offers (title, libelle, jobType, workingTime, contractType, salary, postedAt, country, city, adress, zipCode, companyID) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?)', 
+        [title, libelle, jobType, workingTime, contractType, salary, country, city, adress, zipCode ,companyID]);
 
         if (jobQuery.affectedRows > 0) {
-            return res.status(200).send(
-                {
-                    message: 'Job offer created successfully.',
-                    offer: {
-                        jobAdID : jobQuery.insertId.toString(),
-                        title : title,
-                        libelle : libelle,
-                        jobType : jobType,
-                        workingTime : workingTime,
-                        salary : salary,
-                        companyID : companyID
-                    }
-                });
+            return res.status(200).send({
+                message: 'Job offer created successfully.',
+                offer: {
+                    jobAdID : jobQuery.insertId.toString(),
+                    title : title,
+                    libelle : libelle,
+                    jobType : jobType,
+                    workingTime : workingTime,
+                    salary : salary,
+                    country : country,
+                    city : city,
+                    adress : adress,
+                    zipCode : zipCode,
+                    companyID : companyID
+                }
+            });
         }
-        return res.status(500).send({ message: 'Error: Unable to create job ad.' });
+        return res.status(500).send({ message: 'Error: Unable to create job offer.' });
 
     } catch (err) {
-        res.status(500).send({ message: 'Error: Unable to create job ad.', error: err.message });
+        res.status(500).send({ message: 'Error: Unable to create job offer.', error: err.message });
     }
 });
 
-// Get All Job Ads
+// Get All Job offers
 router.get('/', validateToken, async (req, res) => {
     try {
-        const result = await db.query('SELECT * FROM jobAds');
+        const result = await db.query('SELECT offers.id AS offerID, title, companyName, libelle, postedAt, jobType, workingTime, contractType, salary, adress, zipCode, country, city FROM offers LEFT JOIN companies ON offers.companyID = companies.id;');
         return res.status(200).send(result);
 
     } catch (err) {
-        res.status(500).send({ message: 'Error: Unable to fetch job ads.', error: err.message });
+        res.status(500).send({ message: 'Error: Unable to fetch job offers.', error: err.message });
     }
 });
 
 // Get Job Ad by ID
 router.get('/:id', validateToken, async (req, res) => {
     try {
-        const result = await db.query('SELECT * FROM jobAds WHERE id = ?', [req.params.id]);
+        const result = await db.query('SELECT offers.id AS offerID, title, companyName, libelle, postedAt, jobType, workingTime, contractType, salary, adress, zipCode, country, city FROM offers LEFT JOIN companies ON offers.companyID = companies.id WHERE offers.id = ?', [req.params.id]);
 
-        if (result.length > 0) {
-            return res.status(200).send(result[0]);
-        }
+        if (result.length > 0) return res.status(200).send(result[0]);
         return res.status(404).send({ message: 'Error: Job ad not found.' });
 
     } catch (err) {
@@ -77,28 +83,34 @@ router.put('/:id', validateToken, async (req, res) => {
     const workingTime = sanitizeInput(req.body.workingTime);
     const salary = sanitizeInput(req.body.salary);
 
-    if (!title || !libelle || !jobType || !workingTime || !salary) {
-        return res.status(400).send({ message: 'Error: Missing information.' });
-    }
+    if (!title || !libelle || !jobType || !workingTime || !salary) return res.status(400).send({ message: 'Error: Missing information.' });
 
     try {
-        const result = await db.query('UPDATE jobAds SET title = ?, libelle = ?, jobType = ?, workingTime = ?, salary = ? WHERE id = ?', 
+        const offerQuery = await db.query('UPDATE offers SET title = ?, libelle = ?, jobType = ?, workingTime = ?, salary = ? WHERE id = ?',
         [title, libelle, jobType, workingTime, salary, req.params.id]);
 
-        if (result.affectedRows > 0) {
-            return res.status(200).send({ message: 'Job ad updated successfully.' });
-        }
-        return res.status(404).send({ message: 'Error: Job ad not found.' });
+        if (!(offerQuery.affectedRows > 0)) return res.status(404).send({ message: 'Error: Offer not found.' });
 
+        return res.status(200).send( { 
+            message: 'Job offer created successfully.', 
+            offer: {
+                offerID : req.params.id,
+                title : title,
+                libelle : libelle,
+                jobType : jobType,
+                workingTime : workingTime,
+                salary : salary
+            }
+        });
     } catch (err) {
-        res.status(500).send({ message: 'Error: Unable to update job ad.', error: err.message });
+        res.status(500).send({ message: 'Error: Unable to update offer.', error: err.message });
     }
 });
 
 // Delete a Job Ad
 router.delete('/:id', validateToken, async (req, res) => {
     try {
-        const result = await db.query('DELETE FROM jobAds WHERE id = ?', [req.params.id]);
+        const result = await db.query('DELETE FROM offers WHERE id = ?', [req.params.id]);
 
         if (result.affectedRows > 0) {
             return res.status(200).send({ message: 'Job ad deleted successfully.' });
