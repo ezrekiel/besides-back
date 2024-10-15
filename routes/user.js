@@ -3,6 +3,7 @@ const { validateToken } = require('../utils/jwt');
 const db = require('../utils/database');
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcrypt');
 
 // Création d'utilisateur, normalement inutile car auth.js le fait mieux
 /*
@@ -35,7 +36,7 @@ router.get('/', validateToken, async (req, res) => {
 		return res.status(200).send(result);
 
 	} catch (err) {
-		res.status(500).send({ message: 'Error : Unable to fetch users.', error: err.message });
+		return res.status(500).send({ message: 'Error : Unable to fetch users.', error: err.message });
 	}
 });
 
@@ -49,13 +50,12 @@ router.get('/:userID', validateToken, async (req, res) => {
 		return res.status(404).send({ message: 'Error : user not found.' });
 
 	} catch (err) {
-		res.status(500).send({ message: 'Error : Unable to fetch the user.', error: err.message });
+		return res.status(500).send({ message: 'Error : Unable to fetch the user.', error: err.message });
 	}
 });
 
 // Modifier un user
 router.put('/:id', validateToken, async (req, res) => {
-    const firstName = sanitizeInput(req.body.firstName);
     const lastName = sanitizeInput(req.body.lastName);
     const phoneNumber = sanitizeInput(req.body.phoneNumber);
     const employer = sanitizeInput(req.body.employer);
@@ -66,13 +66,11 @@ router.put('/:id', validateToken, async (req, res) => {
     const adress = sanitizeInput(req.body.adress);
     const zipCode = sanitizeInput(req.body.zipCode);
 
-    if (!firstName || !lastName || !phoneNumber || !employer || !username || !password || !country || !city || !adress || !zipCode) {
-        return res.status(400).send({ message: 'Error: Missing required information.' });
-    }
-
     try {
-        const result = await db.query('UPDATE users SET firstName = ?, lastName = ?, phoneNumber = ?, gender = ?, employer = ? WHERE id = ?', 
-            [firstName, lastName, phoneNumber, gender, employer, req.params.id]);
+		const hashedPassword = await bcrypt.hash(password, 10);
+
+        const result = await db.query('UPDATE users SET lastName = ?, phoneNumber = ?, employer = ?,  username = ?,  password = ?,  country = ?,  city = ?,  adress = ?,  zipCode = ? WHERE id = ?', 
+            [firstName, lastName, phoneNumber, employer, username, hashedPassword, country, city, adress, zipCode, req.params.id]);
 
         if (result.affectedRows > 0) {
             return res.status(200).send({ message: 'User updated successfully.' });
@@ -80,7 +78,7 @@ router.put('/:id', validateToken, async (req, res) => {
         return res.status(404).send({ message: 'Error: User not found.' });
 
     } catch (err) {
-        res.status(500).send({ message: 'Error: Unable to update user.', error: err.message });
+        return res.status(500).send({ message: 'Error: Unable to update user.', error: err.message });
     }
 });
 
@@ -93,7 +91,7 @@ router.delete('/:userID', validateToken, async (req, res) => {
 		return res.status(404).send({ message: 'Error : user not found.' });
 
 	} catch (err) {
-		res.status(500).send({ message: 'Error : Unable to delete user.', error: err.message });
+		return res.status(500).send({ message: 'Error : Unable to delete user.', error: err.message });
 	}
 });
 
