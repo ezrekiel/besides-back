@@ -11,7 +11,7 @@ router.post('/', validateToken, async (req, res) => {
     const jobType = sanitizeInput(req.body.jobType);
     const workingTime = sanitizeInput(req.body.workingTime);
     const salary = sanitizeInput(req.body.salary);
-    const companyID = sanitizeInput(req.body.id_company);
+    const companyID = sanitizeInput(req.body.companyID);
 
     if (!title || !libelle || !jobType || !workingTime || !salary || !companyID) {
         return res.status(400).send({ message: 'Error: Missing information.' });
