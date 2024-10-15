@@ -68,10 +68,6 @@ router.put('/:id', validateToken, async (req, res) => {
     const legalStatus = sanitizeInput(req.body.legalStatus);
     const activitySector = sanitizeInput(req.body.activitySector);
 
-    if (!companyName || !legalStatus || !activitySector) {
-        return res.status(400).send({ message: 'Error: Missing required information.' });
-    }
-
     try {
         const result = await db.query('UPDATE companies SET companyName = ?, legalStatus = ?, activitySector = ? WHERE id = ?', 
             [companyName, legalStatus, activitySector, req.params.id]);

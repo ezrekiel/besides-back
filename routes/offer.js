@@ -11,18 +11,30 @@ router.post('/', validateToken, async (req, res) => {
     const jobType = sanitizeInput(req.body.jobType);
     const workingTime = sanitizeInput(req.body.workingTime);
     const salary = sanitizeInput(req.body.salary);
-    const id_company = sanitizeInput(req.body.id_company);  // Assuming the company ID is provided
+    const companyID = sanitizeInput(req.body.id_company);
 
-    if (!title || !libelle || !jobType || !workingTime || !salary || !id_company) {
+    if (!title || !libelle || !jobType || !workingTime || !salary || !companyID) {
         return res.status(400).send({ message: 'Error: Missing information.' });
     }
 
     try {
-        const result = await db.query('INSERT INTO jobAds (title, libelle, jobType, workingTime, salary, postedAt, id_company) VALUES (?, ?, ?, ?, ?, NOW(), ?)', 
-        [title, libelle, jobType, workingTime, salary, id_company]);
+        const jobQuery = await db.query('INSERT INTO jobAds (title, libelle, jobType, workingTime, salary, postedAt, id_company) VALUES (?, ?, ?, ?, ?, NOW(), ?)', 
+        [title, libelle, jobType, workingTime, salary, companyID]);
 
-        if (result.affectedRows > 0) {
-            return res.status(200).send({ message: 'Job ad created successfully.' });
+        if (jobQuery.affectedRows > 0) {
+            return res.status(200).send(
+                { 
+                    message: 'User created successfully.', 
+                    user: {
+                        jobAdID : jobQuery.insertId.toString(),
+                        title : title,
+                        libelle : libelle,
+                        jobType : jobType,
+                        workingTime : workingTime,
+                        salary : salary,
+                        companyID : companyID
+                    }
+                });
         }
         return res.status(500).send({ message: 'Error: Unable to create job ad.' });
 
