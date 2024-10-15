@@ -18,14 +18,14 @@ router.post('/', validateToken, async (req, res) => {
     }
 
     try {
-        const jobQuery = await db.query('INSERT INTO jobAds (title, libelle, jobType, workingTime, salary, postedAt, id_company) VALUES (?, ?, ?, ?, ?, NOW(), ?)', 
+        const jobQuery = await db.query('INSERT INTO jobAds (title, libelle, jobType, workingTime, salary, postedAt, companyID) VALUES (?, ?, ?, ?, ?, NOW(), ?)', 
         [title, libelle, jobType, workingTime, salary, companyID]);
 
         if (jobQuery.affectedRows > 0) {
             return res.status(200).send(
-                { 
-                    message: 'User created successfully.', 
-                    user: {
+                {
+                    message: 'Job offer created successfully.',
+                    offer: {
                         jobAdID : jobQuery.insertId.toString(),
                         title : title,
                         libelle : libelle,
