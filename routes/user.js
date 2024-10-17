@@ -32,7 +32,7 @@ router.post('/', validateToken, async (req, res) => {
 // Récupérer tous les users
 router.get('/', validateToken, async (req, res) => {
 	try {
-		const userQuery = await db.query('SELECT * FROM users');
+		const userQuery = await db.query('SELECT users.id AS userID, companyID, username, firstname, lastname FROM users');
 		return res.status(200).send(userQuery);
 
 	} catch (err) {
@@ -43,7 +43,7 @@ router.get('/', validateToken, async (req, res) => {
 // Récupérer un user par son ID
 router.get('/:userID', validateToken, async (req, res) => {
 	try {
-		const userQuery = await db.query('SELECT * FROM users WHERE id = ?', [req.params.userID]);
+		const userQuery = await db.query('SELECT users.id AS userID, companyID, username, firstname, lastname FROM users WHERE id = ?', [req.params.userID]);
 		console.log(userQuery);
 
 		if (userQuery.length > 0) return res.status(200).send(userQuery[0]);
