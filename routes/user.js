@@ -5,29 +5,40 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 
-// Création d'utilisateur, normalement inutile car auth.js le fait mieux
-/*
 router.post('/', validateToken, async (req, res) => {
-	const userName = sanitizeInput(req.body.userName);
-	const firstName = sanitizeInput(req.body.firstName);
-	const lastName = sanitizeInput(req.body.lastName);
-	const birthday = sanitizeInput(req.body.birthday);
-	const phoneNumber = sanitizeInput(req.body.phoneNumber);
-	const gender = sanitizeInput(req.body.gender);
-
-	if (!userName) return res.status(400).send({ message: 'Error : Missing information.' });
-
 	try {
-		const userQuery = await db.query('INSERT INTO users (userName, firstName, lastName, birthday, phoneNumber, gender) VALUES (?, ?, ?, ?, ?)', [userName, firstName, lastName, birthday, phoneNumber, gender]);
-		
-		if (userQuery.affectedRows > 0) return res.status(200).send({ message: 'user created successfully.'});
-		return res.status(500).send({ message: 'Error : Unable to create user.' });
+		const lastName = sanitizeInput(req.body.lastName);
+		const firstName = sanitizeInput(req.body.firstName);
+		const username = sanitizeInput(req.body.username);
+		const password = sanitizeInput(req.body.password);
+		const isAdmin = sanitizeInput(req.body.isAdmin);
+		const phoneNumber = sanitizeInput(req.body.phoneNumber);
+		const gender = sanitizeInput(req.body.gender);
+		const employer = sanitizeInput(req.body.employer);
+		const adress = sanitizeInput(req.body.adress);
+		const zipCode = sanitizeInput(req.body.zipCode);
+		const country = sanitizeInput(req.body.country);
+		const city = sanitizeInput(req.body.city);
 
-	} catch (err) {
-		res.status(500).send({ message: 'Error : Unable to create user.', error: err.message });
+        // lastName firstName username password isAdmin phoneNumber gender employer adress zipCode country city
+
+		// || !birthday || !gender || !employer || !country || !city || !adress || !zipCode
+		if (!lastName || !firstName || !username || !password || !isAdmin || !phoneNumber || !gender || !employer || !adress || !zipCode || !country || !city) return res.status(400).send({ message: 'Error : Missing credentials.' });
+		if (!isUsernameValid(username)) return res.status(400).send({ message: 'Error : Invalid username.' });
+
+		const hashedPassword = await bcrypt.hash(password, 10);
+
+		const signupQuery = await db.query('INSERT INTO users (lastName, firstName, username, password, isAdmin, phoneNumber, gender, employer, adress, zipCode, country, city) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);'
+			[lastName, firstName, username, password, isAdmin, phoneNumber, gender, employer, adress, zipCode, country, city]
+		);
+
+		if (!(signupQuery.affectedRows > 0)) return res.status(500).send({ message: 'Error : Unable to create User.' });
+		const userDetails = await getUserDetails(username);
+		return res.status(200).send({ message: 'User created successfully.', user: userDetails});
+	} catch(error) {
+		return res.status(500).send({ message: 'Error : ' + error });
 	}
 });
-*/
 
 // Récupérer tous les users
 router.get('/', validateToken, async (req, res) => {

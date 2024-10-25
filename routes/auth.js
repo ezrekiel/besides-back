@@ -33,18 +33,8 @@ router.post('/signup', async (req, res) => {
 		const password = sanitizeInput(req.body.password);
 		const phoneNumber = sanitizeInput(req.body.phoneNumber);
 
-		/*
-		const gender = sanitizeInput(req.body.gender);
-		const birthday = sanitizeInput(req.body.birthday);
-		const employer = sanitizeInput(req.body.employer);
-		const country = sanitizeInput(req.body.country);
-		const city = sanitizeInput(req.body.city);
-		const adress = sanitizeInput(req.body.adress);
-		const zipCode = sanitizeInput(req.body.zipCode);
-		*/
-
 		// || !birthday || !gender || !employer || !country || !city || !adress || !zipCode
-		if (!firstName || !lastName || !username || !password || !phoneNumber ) return res.status(400).send({ message: 'Error : Missing credentials.' });
+		if (!firstName || !lastName || !username || !password || !phoneNumber) return res.status(400).send({ message: 'Error : Missing credentials.' });
 		if(!isUsernameValid(username)) return res.status(400).send({ message: 'Error : Invalid username.' });
 
 		const hashedPassword = await bcrypt.hash(password, 10);
@@ -52,7 +42,6 @@ router.post('/signup', async (req, res) => {
 		const signupQuery = await db.query('INSERT INTO users (username, pass, firstName, lastName, phoneNumber) VALUES (?, ?, ?, ?, ?);', 
 			[username, hashedPassword, firstName, lastName, phoneNumber]
 		);
-		//, birthday, gender, employer, country, city, adress, zipCode
 
 		if (!(signupQuery.affectedRows > 0)) return res.status(500).send({ message: 'Error : Unable to create User.' });
 		const userDetails = await getUserDetails(username);
