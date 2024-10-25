@@ -73,6 +73,29 @@ router.get('/title/:title', validateToken, async (req, res) => {
     }
 });
 
+// Get Job offers by search (title, company, jobType, contractType, etc.)
+router.get('/search', validateToken, async (req, res) => {
+    try {
+        const searchQuery = `%${req.query.query}%`;
+        const offerQuery = await db.query(`
+            SELECT offers.id AS offerID, title, companyName, libelle, postedAt, jobType, workingTime, contractType, salary, adress, zipCode, country, city 
+            FROM offers 
+            LEFT JOIN companies ON offers.companyID = companies.id 
+            WHERE 
+                offers.title LIKE ? OR
+                companies.companyName LIKE ? OR
+                offers.jobType LIKE ? OR
+                offers.contractType LIKE ? OR
+                offers.libelle LIKE ?;
+        `, [searchQuery, searchQuery, searchQuery, searchQuery, searchQuery]);
+
+        return res.status(200).send(offerQuery);
+    } catch (err) {
+        res.status(500).send({ message: 'Error: Unable to fetch job offers.', error: err.message });
+    }
+});
+
+
 // Get Job Ad by ID
 router.get('/:id', validateToken, async (req, res) => {
     try {

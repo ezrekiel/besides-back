@@ -46,7 +46,7 @@ router.post('/signup', async (req, res) => {
 		// || !birthday || !gender || !employer || !country || !city || !adress || !zipCode
 		if (!firstName || !lastName || !username || !password || !phoneNumber ) return res.status(400).send({ message: 'Error : Missing credentials.' });
 		if(!isUsernameValid(username)) return res.status(400).send({ message: 'Error : Invalid username.' });
-		
+
 		const hashedPassword = await bcrypt.hash(password, 10);
 
 		const signupQuery = await db.query('INSERT INTO users (username, pass, firstName, lastName, phoneNumber) VALUES (?, ?, ?, ?, ?);', 
@@ -63,7 +63,7 @@ router.post('/signup', async (req, res) => {
 });
 
 async function getUserDetails(username) {
-	const userDetailsQuery = await db.query('SELECT users.id AS userID, companyID, username, firstname, lastname FROM users WHERE username = ?', [username]);
+	const userDetailsQuery = await db.query('SELECT users.id AS userID, isAdmin, username, firstname, lastname FROM users WHERE username = ?', [username]);
 	if (!(userDetailsQuery.length > 0)) return {};
 	return userDetailsQuery[0];
 }
