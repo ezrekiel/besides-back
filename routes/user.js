@@ -155,4 +155,9 @@ router.delete('/:userID', validateToken, async (req, res) => {
 	}
 });
 
+function isUsernameValid(username) {
+	const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,5}$/;
+	return regex.test(username);
+}
+
 module.exports = router;
