@@ -62,35 +62,7 @@ router.get('/:userID', validateToken, async (req, res) => {
 		return res.status(500).send({ message: 'Error : Unable to fetch the user.', error: err.message });
 	}
 });
-/*
-// Modifier un user
-router.put('/:id', validateToken, async (req, res) => {
-    const lastName = sanitizeInput(req.body.lastName);
-    const phoneNumber = sanitizeInput(req.body.phoneNumber);
-    const employer = sanitizeInput(req.body.employer);
-    const username = sanitizeInput(req.body.username);
-    const password = sanitizeInput(req.body.password);
-    const country = sanitizeInput(req.body.country);
-    const city = sanitizeInput(req.body.city);
-    const adress = sanitizeInput(req.body.adress);
-    const zipCode = sanitizeInput(req.body.zipCode);
 
-    try {
-	const hashedPassword = await bcrypt.hash(password, 10);
-
-        const userQuery = await db.query('UPDATE users SET lastName = ?, phoneNumber = ?, employer = ?,  username = ?,  pass = ?,  country = ?,  city = ?,  adress = ?,  zipCode = ? WHERE id = ?', 
-            [lastName, phoneNumber, employer, username, hashedPassword, country, city, adress, zipCode, req.params.id]);
-
-        if (userQuery.affectedRows > 0) {
-            return res.status(200).send({ message: 'User updated successfully.' });
-        }
-        return res.status(404).send({ message: 'Error: User not found.' });
-
-    } catch (err) {
-        return res.status(500).send({ message: 'Error: Unable to update user.', error: err.message });
-    }
-});
-*/
 router.put('/:id', validateToken, async (req, res) => {
     try {
         const updates = [];
@@ -152,6 +124,12 @@ router.delete('/:userID', validateToken, async (req, res) => {
 		return res.status(500).send({ message: 'Error : Unable to delete user.', error: err.message });
 	}
 });
+
+async function getUserDetails(username) {
+	const userDetailsQuery = await db.query('SELECT users.id AS userID, isAdmin, username, firstname, lastname FROM users WHERE username = ?', [username]);
+	if (!(userDetailsQuery.length > 0)) return {};
+	return userDetailsQuery[0];
+}
 
 function isUsernameValid(username) {
 	const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,5}$/;
