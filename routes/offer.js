@@ -106,9 +106,9 @@ router.post('/apply', validateToken, async (request, response) => {
 	try {
 		const jobQuery = await db.query('INSERT INTO offerApplications (offersID, applicantID, motivationLetter) VALUES (?, ?, ?);', [offerID, userID, message]);
 
-		if (!jobQuery.affectedRows > 0) return res.status(500).send({ message: 'Error: Unable to apply to the offer.' });
+		if (!jobQuery.affectedRows > 0) return response.status(500).send({ message: 'Error: Unable to apply to the offer.' });
 		
-		return res.status(200).send({ message: 'Offer applied successfully.'});
+		return response.status(200).send({ message: 'Offer applied successfully.'});
 	} catch (err) {
 		return response.status(500).send({ message: 'Error: Unable to apply to offer.', error: err.message });
 	}
