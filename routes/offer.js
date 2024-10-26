@@ -54,7 +54,7 @@ router.post('/', validateToken, async (req, res) => {
 // Get All Job offers
 router.get('/', validateToken, async (req, res) => {
 	try {
-		const offerQuery = await db.query('SELECT offers.id AS offerID, title, companyName, libelle, postedAt, jobType, workingTime, contractType, salary, adress, zipCode, country, city FROM offers LEFT JOIN companies ON offers.companyID = companies.id;');
+		const offerQuery = await db.query('SELECT offers.id AS offerID, title, companyName, libelle, postedAt, jobType, workingTime, contractType, salary, adress, zipCode, country, city, GROUP_CONCAT(offerApplications.applicantID) AS applicantIDs FROM offers LEFT JOIN companies ON offers.companyID = companies.id LEFT JOIN offerApplications ON offers.id = offerApplications.offersID GROUP BY offers.id, title, companyName, libelle, postedAt, jobType, workingTime, contractType, salary, adress, zipCode, country, city;');
 		return res.status(200).send(offerQuery);
 
 	} catch (err) {
