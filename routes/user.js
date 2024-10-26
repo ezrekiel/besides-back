@@ -20,16 +20,14 @@ router.post('/', validateToken, async (req, res) => {
 		const country = sanitizeInput(req.body.country);
 		const city = sanitizeInput(req.body.city);
 
-        // lastName firstName username password isAdmin phoneNumber gender employer adress zipCode country city
-
 		// || !birthday || !gender || !employer || !country || !city || !adress || !zipCode
 		if (!lastName || !firstName || !username || !password || !isAdmin || !phoneNumber || !gender || !employer || !adress || !zipCode || !country || !city) return res.status(400).send({ message: 'Error : Missing credentials.' });
 		if (!isUsernameValid(username)) return res.status(400).send({ message: 'Error : Invalid username.' });
 
 		const hashedPassword = await bcrypt.hash(password, 10);
 
-		const signupQuery = await db.query('INSERT INTO users (lastName, firstName, username, password, isAdmin, phoneNumber, gender, employer, adress, zipCode, country, city) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);'
-			[lastName, firstName, username, password, isAdmin, phoneNumber, gender, employer, adress, zipCode, country, city]
+		const signupQuery = await db.query('INSERT INTO users (lastName, firstName, username, password, isAdmin, phoneNumber, gender, employer, adress, zipCode, country, city) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
+			[lastName, firstName, username, hashedPassword, isAdmin, phoneNumber, gender, employer, adress, zipCode, country, city]
 		);
 
 		if (!(signupQuery.affectedRows > 0)) return res.status(500).send({ message: 'Error : Unable to create User.' });
@@ -145,7 +143,7 @@ router.put('/:id', validateToken, async (req, res) => {
 // Suppression de user
 router.delete('/:userID', validateToken, async (req, res) => {
 	try {
-		const userQuery = await db.query('DELETE FROM users WHERE id = ?', [req.params.userID]);
+		const userQuery = await db.query('DELETE FROM  users WHERE id = ?', [req.params.userID]);
 
 		if (userQuery.affectedRows > 0) return res.status(200).send({ message: 'user deleted successfully.' });
 		return res.status(404).send({ message: 'Error : user not found.' });
